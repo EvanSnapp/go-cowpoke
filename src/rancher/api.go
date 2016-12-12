@@ -2,35 +2,56 @@ package rancher
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"net/url"
 	"os"
+)
+
+var (
+	//ErrUnauthorized is an error for Rancher API 401
+	ErrUnauthorized = errors.New("unauthorized")
+	//ErrNotFound is an error for Rancher API 404 or for 200s with no data (aka no environments found)
+	ErrNotFound = errors.New("no data found")
+	//ErrServer is for all other erros coming back from the Rancher API
+	ErrServer = errors.New("something bad happened with rancher")
 )
 
 var client = &http.Client{}
 
-//DoRequest will make a call to the Rancher API and returns a map
-//representing the JSON response
-//TODO: do input validation (url parsing)
-//can't think of a better way to do generic unmarshalling atm
-func DoRequest(url string, response interface{}) error {
-	req, err := http.NewRequest("GET", url, nil)
+//DoRequest will make a call to the Rancher API and decodes
+//the JSON response into the supplied interface
+func DoRequest(uri string, response interface{}) error {
+
+	if _, err := url.Parse(uri); err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("GET", uri, nil)
 
 	if err != nil {
 		return err
 	}
 
 	req.SetBasicAuth(os.Getenv("RANCHER_USER_KEY"), os.Getenv("RANCHER_USER_SECRET"))
-
 	res, err := client.Do(req)
 
-	//TODO: probably need different error types
-	//ex: req bad or decoder error = http 500
-	//otherwise unauthorized, etc
-	//TODO: handle unauthorized responses
 	if err != nil {
 		return err
 	}
 
-	json.NewDecoder(res.Body).Decode(&response)
-	return nil
+	//treating default status codes as an error as we don't have any data
+	switch res.StatusCode {
+	case 200:
+		json.NewDecoder(res.Body).Decode(&response)
+		return nil
+	case 401:
+		return ErrUnauthorized
+	case 404:
+		return ErrNotFound
+	case 500:
+		return ErrServer
+	default:
+		return ErrServer
+	}
 }

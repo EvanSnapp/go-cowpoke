@@ -37,6 +37,10 @@ var _ = Describe("Catalog", func() {
 	})
 
 	It("should get template version", func() {
+		url, _ := GetTemplateURL("lk fork", "cowpoke", "config-improvements-77")
+		templateVersion, err := GetTemplateVersion(url.String())
 
+		Expect(err).To(BeNil())
+		Expect(templateVersion).ToNot(BeNil())
 	})
 })

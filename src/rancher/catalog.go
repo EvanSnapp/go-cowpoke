@@ -30,7 +30,6 @@ func GetTemplateURL(catalog string, template string, version string) (*url.URL, 
 	var data Template
 	catalogID := fmt.Sprintf("%s:%s", url.PathEscape(catalog), url.PathEscape(template))
 	catalogURL := os.Getenv("RANCHER_URL") + "/v1-catalog/templates/" + catalogID
-	fmt.Println(catalogURL)
 
 	if err := DoRequest(catalogURL, &data); err != nil {
 		return nil, err
@@ -55,9 +54,12 @@ func GetTemplateURL(catalog string, template string, version string) (*url.URL, 
 
 //GetTemplateVersion will retrieve the rancher and docker information for a catalog template
 //at the specified version.
-func GetTemplateVersion(u *url.URL) (*TemplateVersion, error) {
-	//get the url of the template
-	//get the data
-	//return a data structure of template data
-	return nil, nil
+func GetTemplateVersion(uri string) (*TemplateVersion, error) {
+	var data *TemplateVersion
+
+	if err := DoRequest(uri, &data); err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
