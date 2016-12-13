@@ -23,6 +23,7 @@ func main() {
 	r := gin.Default()
 	//global middleware
 	r.Use(middleware.Authenticate())
+	r.Use(middleware.Errors())
 
 	//wireup all routes
 	api := r.Group("/api")

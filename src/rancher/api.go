@@ -8,7 +8,11 @@ import (
 	"os"
 )
 
+//TODO: these are going to have to be resource specific so we can send
+//better messages to clients
 var (
+	//ErrForbidden is an error for Rancher API 403
+	ErrForbidden = errors.New("no access")
 	//ErrUnauthorized is an error for Rancher API 401
 	ErrUnauthorized = errors.New("unauthorized")
 	//ErrNotFound is an error for Rancher API 404 or for 200s with no data (aka no environments found)

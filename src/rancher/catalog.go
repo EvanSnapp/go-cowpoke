@@ -1,7 +1,6 @@
 package rancher
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -43,21 +42,27 @@ func GetTemplateURL(catalog string, template string, version string) (*url.URL, 
 				return url, nil
 
 			}
-			return nil, fmt.Errorf("template version [%s] was found, but was not a valid URL", version)
+			return nil, ErrServer
 		}
 
-		return nil, errors.New("template version URL is not a string")
+		return nil, ErrServer
 	}
 
-	return nil, fmt.Errorf("could not find catalog template with version [%s]", version)
+	return nil, ErrNotFound
 }
 
 //GetTemplateVersion will retrieve the rancher and docker information for a catalog template
 //at the specified version.
-func GetTemplateVersion(uri string) (*TemplateVersion, error) {
+func GetTemplateVersion(catalog string, template string, version string) (*TemplateVersion, error) {
 	var data *TemplateVersion
 
-	if err := DoRequest(uri, &data); err != nil {
+	templateURL, err := GetTemplateURL(catalog, template, version)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err := DoRequest(templateURL.String(), &data); err != nil {
 		return nil, err
 	}
 
