@@ -4,29 +4,13 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"rancher/types"
 )
-
-//Template represents catalog template data retrived from the Rancher API
-type Template struct {
-	Name         string                 `json:"name"`
-	ID           string                 `json:"id"`
-	VersionLinks map[string]interface{} `json:"versionLinks"`
-}
-
-//TemplateVersion represents catalog template version data retrieved from the Rancher API
-type TemplateVersion struct {
-	ID             string                 `json:"id"`
-	Name           string                 `json:"name"`
-	CatalogID      string                 `json:"catalogId"`
-	Version        string                 `json:"version"`
-	DefaultVersion string                 `json:"defaultVersion"`
-	TemplateFiles  map[string]interface{} `json:"files"`
-}
 
 //GetTemplateURL returns the URL associated with a catalog template at the specified version
 func GetTemplateURL(catalog string, template string, version string) (*url.URL, error) {
 
-	var data Template
+	var data types.Template
 	catalogID := fmt.Sprintf("%s:%s", url.PathEscape(catalog), url.PathEscape(template))
 	catalogURL := os.Getenv("RANCHER_URL") + "/v1-catalog/templates/" + catalogID
 
@@ -53,8 +37,8 @@ func GetTemplateURL(catalog string, template string, version string) (*url.URL, 
 
 //GetTemplateVersion will retrieve the rancher and docker information for a catalog template
 //at the specified version.
-func GetTemplateVersion(catalog string, template string, version string) (*TemplateVersion, error) {
-	var data *TemplateVersion
+func GetTemplateVersion(catalog string, template string, version string) (*types.TemplateVersion, error) {
+	var data *types.TemplateVersion
 
 	templateURL, err := GetTemplateURL(catalog, template, version)
 
