@@ -20,7 +20,7 @@ func GetStacksToUpgrade(env *types.Environment, templateVersion *types.TemplateV
 	}
 
 	if len(response.Data) == 0 {
-		err = ErrNotFound
+		err = types.APIError{Status: 404, Message: "No stacks found"}
 	}
 
 	for _, stack := range response.Data {
@@ -31,7 +31,7 @@ func GetStacksToUpgrade(env *types.Environment, templateVersion *types.TemplateV
 	}
 
 	if len(stacks) == 0 {
-		err = ErrNotFound
+		err = types.APIError{Status: 404, Message: "No stacks found"}
 	}
 
 	return stacks, err

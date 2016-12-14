@@ -20,7 +20,7 @@ func GetEnvironments() ([]*types.Environment, error) {
 
 	//if no environments were found, it's an authorization issue not a 404 issue
 	if len(response.Data) == 0 {
-		err = ErrForbidden
+		err = types.APIError{Status: 500, Message: "No environments could be found"}
 	}
 
 	return response.Data, err

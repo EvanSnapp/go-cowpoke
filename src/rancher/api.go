@@ -2,23 +2,13 @@ package rancher
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
-)
+	"rancher/types"
 
-//TODO: these are going to have to be resource specific so we can send
-//better messages to clients
-var (
-	//ErrForbidden is an error for Rancher API 403
-	ErrForbidden = errors.New("no access")
-	//ErrUnauthorized is an error for Rancher API 401
-	ErrUnauthorized = errors.New("unauthorized")
-	//ErrNotFound is an error for Rancher API 404 or for 200s with no data (aka no environments found)
-	ErrNotFound = errors.New("no data found")
-	//ErrServer is for all other erros coming back from the Rancher API
-	ErrServer = errors.New("something bad happened with rancher")
+	"github.com/davecgh/go-spew/spew"
 )
 
 var client = &http.Client{}
@@ -26,7 +16,7 @@ var client = &http.Client{}
 //DoRequest will make a call to the Rancher API and decodes
 //the JSON response into the supplied interface
 func DoRequest(uri string, response interface{}) error {
-
+	fmt.Println("doing call for " + uri)
 	if _, err := url.Parse(uri); err != nil {
 		return err
 	}
@@ -44,18 +34,17 @@ func DoRequest(uri string, response interface{}) error {
 		return err
 	}
 
-	//treating default status codes as an error as we don't have any data
-	switch res.StatusCode {
-	case 200:
-		json.NewDecoder(res.Body).Decode(&response)
-		return nil
-	case 401:
-		return ErrUnauthorized
-	case 404:
-		return ErrNotFound
-	case 500:
-		return ErrServer
-	default:
-		return ErrServer
+	if res.StatusCode != 200 {
+		hai := types.APIError{}
+		json.NewDecoder(res.Body).Decode(&hai)
+		hai.URL = uri
+		spew.Dump(hai)
+		fmt.Println(hai.Status)
+		fmt.Println(hai.Message)
+		return hai
 	}
+
+	json.NewDecoder(res.Body).Decode(&response)
+
+	return nil
 }
