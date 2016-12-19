@@ -1,10 +1,9 @@
 package main
 
 import (
-	"middleware"
-
+	"middleware/authentication"
+	"middleware/errors"
 	"os"
-
 	"routes"
 
 	"fmt"
@@ -22,8 +21,8 @@ func main() {
 
 	r := gin.Default()
 	//global middleware
-	r.Use(middleware.Authenticate())
-	r.Use(middleware.Errors())
+	r.Use(authentication.Authenticate())
+	r.Use(errors.HandlePublicError())
 
 	//wireup all routes
 	api := r.Group("/api")

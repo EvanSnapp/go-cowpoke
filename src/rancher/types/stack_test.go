@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestMIddleware(t *testing.T) {
+func TestStackType(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Stack Type Suite")
 }

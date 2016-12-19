@@ -1,4 +1,4 @@
-package middleware
+package authentication
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -13,19 +13,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func TestMIddleware(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Middleware Suite")
-}
+var authRouter *gin.Engine
 
-var router *gin.Engine
+func TestAuthenticationMiddleware(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Authentication Middleware Suite")
+}
 
 var _ = BeforeSuite(func() {
 	gin.SetMode(gin.TestMode)
-	router = gin.New()
-	router.Use(Authenticate())
+	authRouter = gin.New()
+	authRouter.Use(Authenticate())
 
-	router.GET("/test", func(c *gin.Context) {
+	authRouter.GET("/test", func(c *gin.Context) {
 		c.String(200, "OK")
 	})
 })
@@ -39,7 +39,7 @@ var _ = Describe("Authentication", func() {
 	It("should allow anonymous authentication if no api key is set", func() {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest("GET", "/test", nil)
-		router.ServeHTTP(w, r)
+		authRouter.ServeHTTP(w, r)
 
 		Expect(w.Code).To(Equal(200))
 	})
@@ -48,7 +48,7 @@ var _ = Describe("Authentication", func() {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest("GET", "/test", nil)
 		r.Header.Set("bearer", "suh bruh")
-		router.ServeHTTP(w, r)
+		authRouter.ServeHTTP(w, r)
 
 		Expect(w.Code).To(Equal(200))
 	})
@@ -58,7 +58,7 @@ var _ = Describe("Authentication", func() {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest("GET", "/test", nil)
 		r.Header.Set("bearer", "suh bruh")
-		router.ServeHTTP(w, r)
+		authRouter.ServeHTTP(w, r)
 
 		Expect(w.Code).To(Equal(401))
 	})
@@ -68,7 +68,7 @@ var _ = Describe("Authentication", func() {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest("GET", "/test", nil)
 		r.Header.Set("bearer", "a bad key")
-		router.ServeHTTP(w, r)
+		authRouter.ServeHTTP(w, r)
 
 		Expect(w.Code).To(Equal(401))
 	})
@@ -79,7 +79,7 @@ var _ = Describe("Authentication", func() {
 		w := httptest.NewRecorder()
 		r, _ := http.NewRequest("GET", "/test", nil)
 		r.Header.Set("bearer", apiKey)
-		router.ServeHTTP(w, r)
+		authRouter.ServeHTTP(w, r)
 
 		Expect(w.Code).To(Equal(200))
 	})

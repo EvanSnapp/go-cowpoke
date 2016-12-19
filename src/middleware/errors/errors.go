@@ -1,4 +1,4 @@
-package middleware
+package errors
 
 import (
 	"net/http"
@@ -7,8 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//Errors is a middleware responsible for sending HTTP responses when errors occur
-func Errors() gin.HandlerFunc {
+//HandlePublicError is a middleware that sets HTTP reponse codes for "public" errors that occurred
+//in HTTP routes
+func HandlePublicError() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 
