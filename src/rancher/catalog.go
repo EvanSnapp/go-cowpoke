@@ -6,8 +6,6 @@ import (
 	"os"
 	"rancher/types"
 	"reflect"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 //GetTemplateURL returns the URL associated with a catalog template at the specified version
@@ -36,7 +34,6 @@ func GetTemplateURL(catalog string, template string, version string) (string, er
 func GetTemplateVersion(catalog string, template string, version string) (*types.TemplateVersion, error) {
 	var data *types.TemplateVersion
 	templateURL, e := GetTemplateURL(catalog, template, version)
-	spew.Dump(e)
 
 	if e != nil {
 		return nil, e

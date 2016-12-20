@@ -11,11 +11,13 @@ type Stack struct {
 	ID                   string            `json:"id"`
 	ExternalID           string            `json:"externalId"`
 	Name                 string            `json:"name"`
+	State                string            `json:"state"`
 	RancherEnvironmentID string            `json:"accountID"`
 	DockerCompseYML      string            `json:"dockerCompose"`
 	RancherComposeYML    string            `json:"rancherCompose"`
 	EnvironmentVars      map[string]string `json:"environment"`
 	ActionURLs           map[string]string `json:"actions"`
+	Links                map[string]string `json:"links"`
 }
 
 //IsUpgradableTo determines if a stack can be upgraded to a particular

@@ -1,14 +1,14 @@
 package rancher
 
+//TODO: centralize net/http code
+
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"os"
 	"rancher/types"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 var client = &http.Client{}
@@ -16,7 +16,6 @@ var client = &http.Client{}
 //DoRequest will make a call to the Rancher API and decodes
 //the JSON response into the supplied interface
 func DoRequest(uri string, response interface{}) error {
-	fmt.Println("doing call for " + uri)
 	if _, err := url.Parse(uri); err != nil {
 		return err
 	}
@@ -35,13 +34,48 @@ func DoRequest(uri string, response interface{}) error {
 	}
 
 	if res.StatusCode != 200 {
-		hai := types.APIError{}
-		json.NewDecoder(res.Body).Decode(&hai)
-		hai.URL = uri
-		spew.Dump(hai)
-		fmt.Println(hai.Status)
-		fmt.Println(hai.Message)
-		return hai
+		apiErr := types.APIError{}
+		json.NewDecoder(res.Body).Decode(&apiErr)
+		apiErr.URL = uri
+		return apiErr
+	}
+
+	json.NewDecoder(res.Body).Decode(&response)
+
+	return nil
+}
+
+//DoPost makes POST calls to the Rancher API
+func DoPost(uri string, data interface{}, response interface{}) error {
+	if _, parseErr := url.Parse(uri); parseErr != nil {
+		return parseErr
+	}
+
+	dataBytes, marshalErr := json.Marshal(data)
+
+	if marshalErr != nil {
+		return marshalErr
+	}
+
+	req, reqErr := http.NewRequest("POST", uri, bytes.NewBuffer(dataBytes))
+
+	if reqErr != nil {
+		return reqErr
+	}
+
+	req.SetBasicAuth(os.Getenv("RANCHER_USER_KEY"), os.Getenv("RANCHER_USER_SECRET"))
+	req.Header.Set("Content-Type", "application/json")
+	res, resErr := client.Do(req)
+
+	if resErr != nil {
+		return resErr
+	}
+
+	if !(res.StatusCode == 200 || res.StatusCode == 202) {
+		apiErr := types.APIError{}
+		json.NewDecoder(res.Body).Decode(&apiErr)
+		apiErr.URL = uri
+		return apiErr
 	}
 
 	json.NewDecoder(res.Body).Decode(&response)

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"rancher"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,18 +37,27 @@ func UpgradeStack(c *gin.Context) {
 		return
 	}
 
-	/*
-		TODO:
-			- do the upgrade in each environment (async if possible)
-			- send a payload stating what environments were uploaded
+	/*TODOs:
+	-abstract this away from this route function
+	-do whole upgrades process in seperate go routines to avoid the O(n^2) loop
+	-will most likely need to throttle calls as upgrading a stack is a resource
+	 intensive operation for rancher
 	*/
-	//What should we do if there were no stacks to upgrade? send a 404?
-	//TODO: this should be concurrent as well (done in the upgrade function)
 	for _, env := range environments {
 		fmt.Printf("getting stacks we can upgrade in [%s]\n", env.Name)
 		stacks, _ := rancher.GetStacksToUpgrade(env, tmplVersion)
-		spew.Dump(stacks)
+
+		for _, stack := range stacks {
+			if err := rancher.UpgradeStack(stack, tmplVersion); err != nil {
+				c.Error(err).SetType(gin.ErrorTypePublic)
+			}
+		}
 	}
 
-	c.JSON(200, "we made it")
+	//TODO:
+	//if a stack was upgraded in at least one environment
+	//send a 200 along and state which one's were good and bad
+	if len(c.Errors) == 0 {
+		c.JSON(200, "we made it! no send a better response!")
+	}
 }
