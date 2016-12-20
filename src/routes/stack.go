@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"rancher"
+	"rancher/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,22 +41,24 @@ func UpgradeStack(c *gin.Context) {
 	-do each upgrade in go routines to avoid the O(n^2) loop
 		--upgrading is a resource intensive process for Rancher (e.g. pulling images, networking, etc)
 		--so a throttling mechanism would need to be implemented
+	-better HTTP code and responses
 	*/
 	//attempt to upgrade stacks in all the environment the svc account has access to
+	results := []types.StackUpgradeResult{}
+	responseCode := 200 //shourtcut for determining HTTP code
+
 	for _, env := range environments {
 		stacks, _ := rancher.GetStacksToUpgrade(env, tmplVersion)
 
 		for _, stack := range stacks {
-			if err := rancher.UpgradeStack(stack, tmplVersion); err != nil {
-				c.Error(err).SetType(gin.ErrorTypePublic)
+			result := rancher.UpgradeStack(stack, tmplVersion)
+			results = append(results, result)
+
+			if result.UpgradedTo == "" {
+				responseCode = 500
 			}
 		}
 	}
-
-	//TODO:
-	//if a stack was upgraded in at least one environment
-	//send a 200 along and state which one's were good and bad
-	if len(c.Errors) == 0 {
-		c.JSON(200, "we made it! no send a better response!")
-	}
+	//TODO: this response data needs to be improved
+	c.JSON(responseCode, gin.H{"msg": "results from upgrading stack(s)", "results": results})
 }

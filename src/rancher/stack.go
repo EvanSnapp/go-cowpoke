@@ -42,15 +42,19 @@ func GetStacksToUpgrade(env *types.Environment, templateVersion *types.TemplateV
 - better input validation
 -making this take string args instead of pointers may be better in order to make concurrency a bit safer
 */
-func UpgradeStack(s *types.Stack, v *types.TemplateVersion) error {
+func UpgradeStack(s *types.Stack, v *types.TemplateVersion) types.StackUpgradeResult {
 	var curStackState *types.Stack
 	upgradeURL, canUpgrade := s.ActionURLs["upgrade"]
+	result := types.StackUpgradeResult{
+		Name:        s.Name,
+		Environment: s.RancherEnvironmentID,
+	}
 
 	//something could have happened between getting the stack information and making this call so do
 	//one last check before making the upgrade calls
 	if !canUpgrade {
-		msgFmt := "stack '%s'(id: %s) in environment %s can not be upgraded at this time"
-		return types.APIError{Status: 422, Message: fmt.Sprintf(msgFmt, s.Name, s.ID, s.RancherEnvironmentID)}
+		result.Error = "the stack is not in an upgradeable state"
+		return result
 	}
 
 	//TODO: make this it's own type
@@ -67,7 +71,8 @@ func UpgradeStack(s *types.Stack, v *types.TemplateVersion) error {
 	}
 
 	if upgradeErr := DoPost(upgradeURL, data, &curStackState); upgradeErr != nil {
-		return upgradeErr
+		result.Error = "an unexpected error occured during the upgrade request"
+		return result
 	}
 
 	/*
@@ -77,20 +82,22 @@ func UpgradeStack(s *types.Stack, v *types.TemplateVersion) error {
 				-if there is an issue with the data (e.g. invalid YAML) then the stack stays in the upgrading state forever
 				-an exponential backoff instead of a static sleep between polls
 				-a "circuit breaker" mechanism that stops polling after a certain amount of attempts
+				-reverting the stack back to it's original state if an error condition is hit
 	*/
 	for curStackState.State != "upgraded" {
 		if upgradePollErr := DoRequest(curStackState.Links["self"], &curStackState); upgradePollErr != nil {
-			return upgradePollErr
+			result.Error = "an unexpected error occurred while validating the upgrade request"
+			return result
 		}
 
 		time.Sleep(500 * time.Millisecond)
 	}
 
 	//if we get to this point then the upgrade was successful and the upgrade should be finished
-	//TODO: return an error if the call to finish failed
+	result.UpgradedTo = v.Name
 	if finishUpgradeErr := DoPost(curStackState.ActionURLs["finishupgrade"], "", ""); finishUpgradeErr != nil {
-		return finishUpgradeErr
+		result.Error = "the upgrade succeeded but could not be finished"
 	}
 
-	return nil
+	return result
 }
