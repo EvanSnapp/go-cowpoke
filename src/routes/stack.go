@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"rancher"
 
@@ -38,13 +37,12 @@ func UpgradeStack(c *gin.Context) {
 	}
 
 	/*TODOs:
-	-abstract this away from this route function
-	-do whole upgrades process in seperate go routines to avoid the O(n^2) loop
-	-will most likely need to throttle calls as upgrading a stack is a resource
-	 intensive operation for rancher
+	-do each upgrade in go routines to avoid the O(n^2) loop
+		--upgrading is a resource intensive process for Rancher (e.g. pulling images, networking, etc)
+		--so a throttling mechanism would need to be implemented
 	*/
+	//attempt to upgrade stacks in all the environment the svc account has access to
 	for _, env := range environments {
-		fmt.Printf("getting stacks we can upgrade in [%s]\n", env.Name)
 		stacks, _ := rancher.GetStacksToUpgrade(env, tmplVersion)
 
 		for _, stack := range stacks {
