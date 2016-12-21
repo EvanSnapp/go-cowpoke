@@ -52,6 +52,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/nlopes/slack",
+			"repository": "https://github.com/nlopes/slack",
+			"revision": "e595e9d8590a04ff76407e4e7d1791d25b095c66",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
 			"revision": "00054c0bb96fc880d4e0be1b90937fad438c5290",
@@ -69,6 +75,13 @@
 			"revision": "9773060888fba93b172cedcd70127db1ab739bd1",
 			"branch": "master",
 			"path": "/context"
+		},
+		{
+			"importpath": "golang.org/x/net/websocket",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "45e771701b814666a7eb299e6c7a57d0b1799e91",
+			"branch": "master",
+			"path": "/websocket"
 		},
 		{
 			"importpath": "gopkg.in/go-playground/validator.v8",
