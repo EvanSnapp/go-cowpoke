@@ -6,17 +6,17 @@ import (
 	"os"
 	"routes"
 
+	"configuration"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if os.Getenv("GIN_MODE") != "release" {
-		if err := godotenv.Load(); err != nil {
-			panic("a .env file is required for local development")
-		}
+
+	if errs := configuration.Init(); errs != nil {
+		msg := fmt.Sprintf("service could not start due to the following configuration errors:\n %s", errs)
+		panic(msg)
 	}
 
 	r := gin.Default()
