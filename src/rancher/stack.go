@@ -44,6 +44,7 @@ func GetStacksToUpgrade(env *types.Environment, templateVersion *types.TemplateV
 */
 func UpgradeStack(s *types.Stack, v *types.TemplateVersion) types.StackUpgradeResult {
 	var curStackState *types.Stack
+
 	upgradeURL, canUpgrade := s.ActionURLs["upgrade"]
 	result := types.StackUpgradeResult{
 		Name:        s.Name,

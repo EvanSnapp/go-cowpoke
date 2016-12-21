@@ -23,7 +23,6 @@ func (c Client) SendToAll(message string) []error {
 
 	for _, slackChan := range c.Channels {
 		if _, _, err := c.Client.PostMessage(slackChan, message, slack.PostMessageParameters{}); err != nil {
-			fmt.Println(err)
 			errors = append(errors, err)
 		}
 	}
