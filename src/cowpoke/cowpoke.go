@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"middleware/authentication"
 	"middleware/errors"
 	"os"
@@ -31,6 +32,8 @@ func main() {
 		routes.AddStackRoutes(api)
 	}
 
+	listenAddr := fmt.Sprintf(":%s", os.Getenv("HOST_PORT"))
+	log.Printf("service running on %s\n", listenAddr)
 	//start the server
-	r.Run(fmt.Sprintf(":%s", os.Getenv("HOST_PORT")))
+	r.Run(listenAddr)
 }

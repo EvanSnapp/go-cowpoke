@@ -19,8 +19,17 @@ If you're using VSCode the following to your project settings.json to integrate 
 
 ## Building and Running
 
+__Local__
   * ```gb build```
   * ```bin/cowpoke```
+
+__Via the included Dockerfile__
+
+* ```docker build -t <your name>/go-cowpoke . ```
+  * the Dockerfile takes care of compiling the project and setting up GB
+* ```docker run -ti --env-file ./.env -p 9000:9000 <your name>/go-cowpoke```
+  * starts the image on port 9000 using a local .env file for env vars
+  * env vars can also be passed in individual via ```-e```
 
 ## Dependencies
 
