@@ -64,6 +64,8 @@ func UpgradeStack(c *gin.Context) {
 			go doNotification(startMsg)
 
 			result := rancher.UpgradeStack(stack, tmplVersion)
+			//override the result environment with it's friendly name
+			result.Environment = env.Name
 			results = append(results, result)
 
 			if result.UpgradedTo == "" {

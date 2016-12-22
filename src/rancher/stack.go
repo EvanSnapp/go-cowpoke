@@ -95,7 +95,7 @@ func UpgradeStack(s *types.Stack, v *types.TemplateVersion) types.StackUpgradeRe
 	}
 
 	//if we get to this point then the upgrade was successful and the upgrade should be finished
-	result.UpgradedTo = v.Name
+	result.UpgradedTo = v.Version
 	if finishUpgradeErr := DoPost(curStackState.ActionURLs["finishupgrade"], "", ""); finishUpgradeErr != nil {
 		result.Error = "the upgrade succeeded but could not be finished"
 	}
