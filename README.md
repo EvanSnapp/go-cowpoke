@@ -8,6 +8,15 @@ A re-implementation of [cowpoke](https://github.com/LeanKit-Labs/cowpoke) in Go
   * Go 1.8 (for properly encoding URI parts)
   * [GB](https://getgb.io/)
 
+If you're using VSCode the following to your project settings.json to integrate gb with Go plug-ins
+
+```
+{
+  "go.gopath": "${workspaceRoot}:${workspaceRoot}/vendor",
+  "go.goroot": "path to your Go .exe"
+}
+```
+
 ## Building and Running
 
   * ```gb build```
