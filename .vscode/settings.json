@@ -1,4 +1,0 @@
-{
-  "go.gopath": "${workspaceRoot}:${workspaceRoot}/vendor",
-  "go.goroot": "/Users/shawnhartsell/.gvm/gos/go1.8beta1"
-}
