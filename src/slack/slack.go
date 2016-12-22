@@ -2,7 +2,6 @@ package slack
 
 import (
 	"configuration"
-	"fmt"
 	"os"
 
 	"errors"
@@ -37,7 +36,6 @@ func NewClient() (Client, error) {
 	channels := configuration.GetSlackChannels()
 
 	if !(token != "" && len(channels) > 0) {
-		fmt.Println("whoops")
 		return Client{}, errors.New("no slack token and/or channels are configured")
 	}
 
